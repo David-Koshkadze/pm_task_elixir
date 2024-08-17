@@ -2,8 +2,8 @@ import Config
 
 # Configure your database
 config :pm_task_elixir, PmTaskElixir.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "daviti",
+  password: "1234PG",
   hostname: "localhost",
   database: "pm_task_elixir_dev",
   stacktrace: true,

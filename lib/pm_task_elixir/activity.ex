@@ -16,6 +16,18 @@ defmodule PmTaskElixir.Activity do
   def changeset(activity, attrs) do
     activity
     |> cast(attrs, [:action_type, :old_value, :new_value])
-    |> validate_required([:action_type, :old_value, :new_value])
+    |> validate_required([:action_type])
+    |> validate_old_new_values()
+  end
+
+  defp validate_old_new_values(changeset) do
+    old_value = get_field(changeset, :old_value)
+    new_value = get_field(changeset, :new_value)
+
+    if is_nil(old_value) or is_nil(new_value) do
+      add_error(changeset, :old_value, "old_value and new_value must be present")
+    else
+      changeset
+    end
   end
 end

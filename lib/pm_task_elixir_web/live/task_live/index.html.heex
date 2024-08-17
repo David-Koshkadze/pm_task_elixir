@@ -1,0 +1,20 @@
+<h1 class="text-3xl font-bold mb-6">Tasks</h1>
+
+<div id="tasks" class="space-y-4">
+  <%= for task <- @tasks do %>
+    <div id={"task-#{task.id}"} class="p-4 bg-white shadow rounded-lg">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg font-semibold"><%= task.title %></h2>
+          <p class="text-sm text-gray-500">Status: <%= task.status %></p>
+          <p class="text-sm text-gray-500">Due: <%= task.due_date %></p>
+          <p class="text-sm text-gray-500">Sprint Points: <%= task.sprint_points %></p>
+        </div>
+        <div class="flex space-x-2">
+          <span class="text-blue-500 cursor-pointer">Edit</span>
+          <span class="text-red-500 cursor-pointer">Delete</span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

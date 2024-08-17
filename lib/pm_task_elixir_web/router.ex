@@ -18,6 +18,7 @@ defmodule PmTaskElixirWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/tasks", Live.TaskLive.Index, :index
   end
 
   # Other scopes may use custom stacks.

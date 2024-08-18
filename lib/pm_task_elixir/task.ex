@@ -23,6 +23,10 @@ defmodule PmTaskElixir.Task do
     |> validate_required([:title, :description, :status, :due_date, :sprint_points])
   end
 
+  def change_task(%Task{}, attrs \\ %{}) do
+    Task.changeset(%Task{}, attrs)
+  end
+
   def list_tasks do
     Repo.all(Task)
   end
@@ -53,6 +57,10 @@ defmodule PmTaskElixir.Task do
           Repo.rollback(changeset)
       end
     end)
+  end
+
+  def delete_task(%Task{} = task) do
+    Repo.delete(task)
   end
 
   defp log_activity(task, action_type, old_value, new_value) do

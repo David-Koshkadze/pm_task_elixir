@@ -1,7 +1,12 @@
-defmodule PmTaskElixirWeb.TaskLive.TaskFormComponent do
-  use PmTaskElixirWeb, :live_component
+defmodule PmTaskElixirWeb.Live.TaskLive.New do
+  use PmTaskElixirWeb, :live_view
 
   alias PmTaskElixir.Task
+
+  def mount(_params, _session, socket) do
+    changeset = Task.change_task(%Task{})
+    {:ok, assign(socket, :changeset, changeset)}
+  end
 
   def update(%{task: task} = assigns, socket) do
     changeset = Task.change_task(task)

@@ -1,5 +1,9 @@
 <h1 class="text-3xl font-bold mb-6">Tasks</h1>
 
+<%= if @live_action in [:new, :edit] do %>
+  <h1>Edit Task</h1>
+<% end %>
+
 <div id="tasks" class="space-y-4">
   <%= for task <- @tasks do %>
     <div id={"task-#{task.id}"} class="p-4 bg-white shadow rounded-lg">
@@ -19,10 +23,5 @@
   <% end %>
 </div>
 
-<div>
-  <button class="bg-blue-500 text-white px-4 py-2 rounded-lg">Add Task</button>
-  <.link patch={~p"/pages/"}>Next</.link> 
-</div>
-
 <br>  
-<h2>New Task</h2>
+<.link navigate={~p"/tasks/new"}>New Task</.link>

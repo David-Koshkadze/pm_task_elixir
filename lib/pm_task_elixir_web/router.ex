@@ -19,7 +19,7 @@ defmodule PmTaskElixirWeb.Router do
 
     get "/", PageController, :home
     live "/tasks", Live.TaskLive.Index, :index
-    live "/tasks/new", Live.TaskLive.Index, :new
+    live "/tasks/new", Live.TaskLive.New, :new
   end
 
   # Other scopes may use custom stacks.

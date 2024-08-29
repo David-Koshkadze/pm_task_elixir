@@ -14,9 +14,9 @@
           <p class="text-sm text-gray-500">Due: <%= task.due_date %></p>
           <p class="text-sm text-gray-500">Sprint Points: <%= task.sprint_points %></p>
         </div>
-        <div class="flex space-x-2">
-          <span class="text-blue-500 cursor-pointer">Edit</span>
-          <span class="text-red-500 cursor-pointer">Delete</span>
+        <div class="flex space-x-2 flex items-center">
+          <span class="text-blue-500 cursor-pointer hover:text-blue-800">Edit</span>
+          <span class="text-red-500 cursor-pointer hover:text-rose-700" phx-click="delete" phx-value-id={task.id}>Delete</span>
         </div>
       </div>
     </div>

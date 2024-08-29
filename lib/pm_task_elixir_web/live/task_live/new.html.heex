@@ -1,10 +1,16 @@
 <div>
     <.form
-        for={@changeset}
+        for={@form}
         id="task-form"
         phx-change="validate"
         phx-submit="save">
+
+        <.input field={@form[:title]} type="text" phx-change="title_changed" placeholder="Title"/>
+        <.input field={@form[:description]} type="text" placeholder="Description"/>
+        <.input field={@form[:due_date]} type="date" placeholder="Due date"/>
+        <.input field={@form[:sprint_points]} type="number" placeholder="Sprint points"/>
+        <.input field={@form[:status]} type="select" options={["IN PROGRESS", "FOR DEV", "DONE"]} placeholder="Status"/>
+
+        <.button class="my-4">Save</.button>
     </.form>
 </div>
-
-<h1>Hello</h1>

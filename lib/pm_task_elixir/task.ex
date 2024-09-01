@@ -8,11 +8,12 @@ defmodule PmTaskElixir.Task do
   alias PmTaskElixir.Task
 
   schema "tasks" do
-    field :status, :string
     field :description, :string
     field :title, :string
     field :due_date, :string
     field :sprint_points, :integer
+
+    belongs_to :status, PmTaskElixir.Status
 
     timestamps(type: :utc_datetime)
   end
@@ -20,8 +21,9 @@ defmodule PmTaskElixir.Task do
   @doc false
   def changeset(task, attrs) do
     task
-    |> cast(attrs, [:title, :description, :status, :due_date, :sprint_points])
+    |> cast(attrs, [:title, :description, :status_id, :due_date, :sprint_points])
     |> validate_required([:title, :description, :status, :due_date, :sprint_points])
+    |> foreign_key_constraint(:status_id)
   end
 
   def change_task(%Task{}, attrs \\ %{}) do

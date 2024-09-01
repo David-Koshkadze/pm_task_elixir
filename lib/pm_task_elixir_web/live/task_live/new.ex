@@ -17,12 +17,6 @@ defmodule PmTaskElixirWeb.Live.TaskLive.New do
      |> assign(:changeset, changeset)}
   end
 
-
-  def handle_event("title_changed", %{"task" => %{"title" => title}}, socket) do
-    IO.puts("title changed")
-    {:noreply, assign(socket, :title, title)}
-  end
-
   def handle_event("validate", %{"task" => task_params}, socket) do
     form =
       %Task{}

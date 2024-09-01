@@ -3,13 +3,13 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   alias PmTaskElixir.Task
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, tasks: list_tasks(), selected_task: nil)}
+    {:ok, assign(socket, tasks: Task.list_tasks(), selected_task: nil)}
   end
 
   def handle_event("create", %{"task" => task_params}, socket) do
     case Task.create_task(task_params) do
       {:ok, _task} ->
-        {:noreply, assign(socket, :tasks, list_tasks())}
+        {:noreply, assign(socket, :tasks, Task.list_tasks())}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
@@ -22,7 +22,7 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
     case Task.delete_task(task) do
       {:ok, _} ->
-        socket = assign(socket, :tasks, list_tasks())
+        socket = assign(socket, :tasks, Task.list_tasks())
 
         {:noreply,
          socket
@@ -36,14 +36,15 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
   def handle_event("show_modal", %{"id" => id}, socket) do
     task = Task.get_task!(id)
-    {:noreply, assign(socket, selected_task: task)}
+    Process.send_after(self(), :show_modal, 50)
+    {:noreply, assign(socket, selected_task: task, show_modal: false)}
   end
 
   def handle_event("hide_modal", _, socket) do
     {:noreply, assign(socket, selected_task: nil)}
   end
 
-  defp list_tasks() do
-    Task.list_tasks()
+  def handle_info(:show_modal, socket) do
+    {:noreply, assign(socket, show_modal: true)}
   end
 end

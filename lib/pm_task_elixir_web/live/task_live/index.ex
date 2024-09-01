@@ -1,6 +1,7 @@
 defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   use PmTaskElixirWeb, :live_view
   alias PmTaskElixir.Task
+  require IEx
 
   def mount(_params, _session, socket) do
     {:ok, assign(socket, tasks: Task.list_tasks(), selected_task: nil)}
@@ -31,6 +32,25 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to delete task")}
+    end
+  end
+
+  # updating task when any changes are made
+  def handle_event("update_task", params, socket) do
+    %{selected_task: selected_task} = socket.assigns
+
+    attrs = %{
+      status: params["status"] || selected_task.status,
+      description: params["description"] || selected_task.description,
+      sprint_points: params["sprint_points"] || selected_task.sprint_points
+    }
+
+    case Task.update_task(selected_task, attrs) do
+      {:ok, updated_task} ->
+        {:noreply, assign(socket, selected_task: updated_task)}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to update task")}
     end
   end
 

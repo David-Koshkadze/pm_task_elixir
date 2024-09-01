@@ -27,8 +27,9 @@
 
 <%= if @selected_task do %>
   <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" phx-click-away="hide_modal">
-    <div class={"relative w-11/12 h-5/6 mx-auto my-10 p-5 border shadow-lg rounded-lg bg-white transform transition-all duration-300 ease-in-out" 
-    <> if @show_modal, do: "scale-100 opacity-100", else: "scale-95 opacity-0"}>
+    <div 
+      class={"relative w-11/12 h-5/6 mx-auto my-10 p-5 border shadow-lg rounded-lg bg-white transform transition-all duration-300 ease-in-out" 
+      <> if @show_modal, do: "scale-100 opacity-100", else: "scale-95 opacity-0"}>
       <div class="absolute top-0 right-0 mt-4 mr-4">
         <button phx-click="hide_modal" class="text-gray-400 hover:text-gray-600">
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -36,25 +37,38 @@
           </svg>
         </button>
       </div>
+      <!-- Body -->
       <div class="mt-3">
         <h3 class="text-2xl font-bold text-gray-900 mb-4"><%= @selected_task.title %></h3>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <p class="text-sm text-gray-500">Status: <%= @selected_task.status %></p>
-          <p class="text-sm text-gray-500">Due: <%= @selected_task.due_date %></p>
-          <p class="text-sm text-gray-500">Sprint Points: <%= @selected_task.sprint_points %></p>
-        </div>
-        <div class="mt-6">
-          <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description (Markdown)</label>
-          <textarea
-            id="description"
-            name="description"
-            rows="10"
-            phx-change="update_description"
-            phx-debounce="300"
-            class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
-            placeholder="Enter task description in Markdown format..."
-          ><%= @selected_task.description %></textarea>
-        </div>
+        <form phx-change="update_task">
+          <div class="flex flex-col gap-4 mb-4">
+            <p class="text-sm text-gray-500">Status: <%= @selected_task.status %></p>
+            <p class="text-sm text-gray-500">Due: <%= @selected_task.due_date %></p>
+            <p class="text-sm text-gray-500">Sprint Points: <%= @selected_task.sprint_points %></p>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+            <select id="status" name="status" value={@selected_task.status} class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <option value="To Do">To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+
+          <div class="mt-6">
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description (Markdown)</label>
+              <textarea
+                id="description"
+                name="description"
+                rows="10"
+                phx-debounce="300"
+                class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+                placeholder="Enter task description in Markdown format..."
+              ><%= @selected_task.description %></textarea>
+          </div>
+        </form>
         <div class="mt-4">
           <h4 class="text-lg font-semibold mb-2">Preview:</h4>
           <div class="prose max-w-full">

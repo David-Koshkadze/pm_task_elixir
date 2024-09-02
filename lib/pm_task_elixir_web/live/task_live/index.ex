@@ -38,15 +38,10 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
   # updating task when any changes are made
   def handle_event("update_task", params, socket) do
-    IO.inspect(params, label: "Params")
-    IO.inspect(socket.assigns, label: "Socket Assigns")
-
     %{selected_task: selected_task} = socket.assigns
 
-
-
     attrs = %{
-      status: params["status_id"] || selected_task.status_id,
+      status_id: params["status_id"] || selected_task.status_id,
       description: params["description"] || selected_task.description,
       sprint_points: params["sprint_points"] || selected_task.sprint_points
     }
@@ -61,7 +56,7 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   end
 
   def handle_event("show_modal", %{"id" => id}, socket) do
-    task = Task.get_task!(id) |> Repo.preload(:status)
+    task = Task.get_task!(id)
     IO.inspect(task.status, label: "Loaded Status")
     Process.send_after(self(), :show_modal, 50)
     {:noreply, assign(socket, selected_task: task, show_modal: false)}

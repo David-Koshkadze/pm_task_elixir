@@ -1,10 +1,11 @@
 defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   use PmTaskElixirWeb, :live_view
   alias PmTaskElixir.Task
-  require IEx
+  alias PmTaskElixir.Repo
+  alias PmTaskElixir.Status
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, tasks: Task.list_tasks(), selected_task: nil)}
+    {:ok, assign(socket, tasks: Task.list_tasks(), selected_task: nil, statuses: Repo.all(Status))}
   end
 
   def handle_event("create", %{"task" => task_params}, socket) do
@@ -23,7 +24,7 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
     case Task.delete_task(task) do
       {:ok, _} ->
-        socket = assign(socket, :tasks, Task.list_tasks())
+        socket = assign(socket, :tasks, list_tasks())
 
         {:noreply,
          socket
@@ -37,10 +38,15 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
   # updating task when any changes are made
   def handle_event("update_task", params, socket) do
+    IO.inspect(params, label: "Params")
+    IO.inspect(socket.assigns, label: "Socket Assigns")
+
     %{selected_task: selected_task} = socket.assigns
 
+
+
     attrs = %{
-      status: params["status"] || selected_task.status,
+      status: params["status_id"] || selected_task.status_id,
       description: params["description"] || selected_task.description,
       sprint_points: params["sprint_points"] || selected_task.sprint_points
     }
@@ -55,7 +61,8 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   end
 
   def handle_event("show_modal", %{"id" => id}, socket) do
-    task = Task.get_task!(id)
+    task = Task.get_task!(id) |> Repo.preload(:status)
+    IO.inspect(task.status, label: "Loaded Status")
     Process.send_after(self(), :show_modal, 50)
     {:noreply, assign(socket, selected_task: task, show_modal: false)}
   end
@@ -66,5 +73,9 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
   def handle_info(:show_modal, socket) do
     {:noreply, assign(socket, show_modal: true)}
+  end
+
+  defp list_tasks do
+    Task.list_tasks()
   end
 end

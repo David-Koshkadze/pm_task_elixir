@@ -6,7 +6,7 @@
       <div class="flex justify-between items-center">
         <div>
           <h2 class="text-lg font-semibold"><%= task.title %></h2>
-          <p class="text-sm text-gray-500">Status: <%= task.status %></p>
+          <!-- <p class="text-sm text-gray-500">Status: <%= task.status.name %></p> -->
           <p class="text-sm text-gray-500">Due: <%= task.due_date %></p>
           <p class="text-sm text-gray-500">Sprint Points: <%= task.sprint_points %></p>
           <p class="text-sm text-gray-500">Created At: <%= task.inserted_at %></p>
@@ -42,7 +42,7 @@
         <h3 class="text-2xl font-bold text-gray-900 mb-4"><%= @selected_task.title %></h3>
         <form phx-change="update_task" phx-submit="update_task">
           <div class="flex flex-col gap-4 mb-4">
-            <p class="text-sm text-gray-500">Status: <%= @selected_task.status %></p>
+            <!-- Status here... -->
             <p class="text-sm text-gray-500">Due: <%= @selected_task.due_date %></p>
             <p class="text-sm text-gray-500">Sprint Points: <%= @selected_task.sprint_points %></p>
           </div>
@@ -50,10 +50,14 @@
           <!-- Status -->
           <div>
             <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-            <select id="status" name="status" value={@selected_task.status} class="mt-1 block w-32 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-              <option value="To Do">To Do</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
+            <select 
+              id="status" 
+              name="status_id" 
+              value={@selected_task.status.name}
+              class="mt-1 block w-32 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <%= for status <- @statuses do %>
+                <option value={status.id} selected={@selected_task.status.id == status.id}><%= status.name %></option>
+              <% end %>
             </select>
           </div>
 

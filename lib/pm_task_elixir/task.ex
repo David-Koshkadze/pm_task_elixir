@@ -22,7 +22,7 @@ defmodule PmTaskElixir.Task do
   def changeset(task, attrs) do
     task
     |> cast(attrs, [:title, :description, :status_id, :due_date, :sprint_points])
-    |> validate_required([:title, :description, :status, :due_date, :sprint_points])
+    |> validate_required([:title, :description, :status_id, :due_date, :sprint_points])
     |> foreign_key_constraint(:status_id)
   end
 
@@ -31,10 +31,10 @@ defmodule PmTaskElixir.Task do
   end
 
   def list_tasks do
-    Repo.all(from(t in Task, order_by: [desc: t.inserted_at]))
+    Repo.all(from(t in Task, order_by: [desc: t.inserted_at])) |> Repo.preload(:status)
   end
 
-  def get_task!(id), do: Repo.get!(Task, id)
+  def get_task!(id), do: Repo.get!(Task, id) |> Repo.preload(:status)
 
   def create_task(attrs \\ %{}) do
     Repo.transaction(fn ->

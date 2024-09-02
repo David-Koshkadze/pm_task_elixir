@@ -1,20 +1,24 @@
 defmodule PmTaskElixirWeb.Live.TaskLive.New do
   use PmTaskElixirWeb, :live_view
 
-  alias PmTaskElixir.Task
+  alias PmTaskElixir.{Task, Status}
 
   def mount(_params, _session, socket) do
     changeset = Task.change_task(%Task{})
-    {:ok, assign(socket, form: to_form(changeset))}
+    statuses = Status.list_statuses()
+
+    {:ok, assign(socket, form: to_form(changeset), statuses: statuses)}
   end
 
   def update(%{task: task} = assigns, socket) do
     changeset = Task.change_task(task)
+    statuses = Status.list_statuses()
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:changeset, changeset)}
+     |> assign(:changeset, changeset)
+     |> assign(:statuses, statuses)}
   end
 
   def handle_event("validate", %{"task" => task_params}, socket) do
@@ -42,6 +46,7 @@ defmodule PmTaskElixirWeb.Live.TaskLive.New do
          |> redirect(to: ~p"/tasks")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
+        IO.puts(changeset)
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end

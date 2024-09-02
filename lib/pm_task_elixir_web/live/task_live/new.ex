@@ -1,34 +1,39 @@
 defmodule PmTaskElixirWeb.Live.TaskLive.New do
   use PmTaskElixirWeb, :live_view
 
-  alias PmTaskElixir.Task
+  alias PmTaskElixir.{Task, Status}
 
   def mount(_params, _session, socket) do
     changeset = Task.change_task(%Task{})
-    {:ok, assign(socket, :changeset, changeset)}
+    statuses = Status.list_statuses()
+
+    {:ok, assign(socket, form: to_form(changeset), statuses: statuses)}
   end
 
   def update(%{task: task} = assigns, socket) do
     changeset = Task.change_task(task)
+    statuses = Status.list_statuses()
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:changeset, changeset)}
+     |> assign(:changeset, changeset)
+     |> assign(:statuses, statuses)}
   end
 
   def handle_event("validate", %{"task" => task_params}, socket) do
-    changeset =
-      socket.assigns.task
+    form =
+      %Task{}
       |> Task.change_task(task_params)
-      |> Map.put(:action, :validate)
+      |> to_form(action: :validate)
 
-    {:noreply, assign(socket, :changeset, changeset)}
+    {:noreply, assign(socket, form: form)}
   end
 
   # save task when creating new task or editing
   def handle_event("save", %{"task" => task_params}, socket) do
-    save_task(socket, socket.assigns.action, task_params)
+    # save_task(socket, socket.assigns.action, task_params)
+    save_task(socket, :new, task_params)
   end
 
   # according to socket.assigns.action below two functions will be called to save task
@@ -38,10 +43,11 @@ defmodule PmTaskElixirWeb.Live.TaskLive.New do
         {:noreply,
          socket
          |> put_flash(:info, "Task created successfully")
-         |> push_navigate(to: socket.assigns.return_to)}
+         |> redirect(to: ~p"/tasks")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
+        IO.puts(changeset)
+        {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
 
@@ -51,10 +57,10 @@ defmodule PmTaskElixirWeb.Live.TaskLive.New do
         {:noreply,
          socket
          |> put_flash(:info, "Task updated successfully")
-         |> push_navigate(to: socket.assigns.return_to)}
+         |> redirect(to: ~p"/tasks")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, :changeset, changeset)}
+        {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
 end

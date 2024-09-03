@@ -3,12 +3,14 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   alias PmTaskElixir.Task
   alias PmTaskElixir.Repo
   alias PmTaskElixir.Status
+  alias PmTaskElixir.User
 
   def mount(_params, _session, socket) do
     {:ok,
      assign(socket,
        tasks: Task.list_tasks(),
        selected_task: nil,
+       users: Repo.all(User),
        statuses: Repo.all(Status),
        editing_title: false
      )}
@@ -63,10 +65,11 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   end
 
   def handle_event("show_modal", %{"id" => id}, socket) do
-    task = Task.get_task!(id)
+    task = get_task_preload(id)
     IO.inspect(task.status, label: "Loaded Status")
+    users = Repo.all(User)
     Process.send_after(self(), :show_modal, 50)
-    {:noreply, assign(socket, selected_task: task, show_modal: false, editing_title: false)}
+    {:noreply, assign(socket, selected_task: task, show_modal: false, editing_title: false, users: users)}
   end
 
   def handle_event("hide_modal", _, socket) do
@@ -94,6 +97,21 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
     end
   end
 
+  # assign users to the task
+  def handle_event("assign_user", %{"user_id" => user_id}, socket) do
+    %{selected_task: selected_task} = socket.assigns
+    user = Repo.get(User, user_id)
+
+    case Task.assign_user(selected_task, user) do
+      {:ok, _} ->
+        updated_task = get_task_preload(selected_task.id)
+        {:noreply, assign(socket, selected_task: updated_task)}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to assign user")}
+    end
+  end
+
   # --- handle_info ---
   def handle_info(:show_modal, socket) do
     {:noreply, assign(socket, show_modal: true)}
@@ -101,5 +119,9 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
   defp list_tasks do
     Task.list_tasks()
+  end
+
+  defp get_task_preload(id) do
+    Task.get_task!(id) |> Repo.preload([:status, :users])
   end
 end

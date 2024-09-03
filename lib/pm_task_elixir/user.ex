@@ -6,6 +6,8 @@ defmodule PmTaskElixir.User do
     field :name, :string
     field :email, :string
 
+    many_to_many :tasks, PmTaskElixir.Task, join_through: "task_users"
+
     timestamps(type: :utc_datetime)
   end
 

@@ -104,6 +104,33 @@
               ><%= @selected_task.description %></textarea>
           </div>
         </form>
+
+        <!-- Add User Assignee Section -->
+        <div>
+          <label for="assignee" class="block text-sm font-medium text-gray-700">Assign User</label>
+          <select 
+            id="assignee" 
+            name="user_id" 
+            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            phx-change="assign_user"
+          >
+            <option value="">Select User</option>
+            <%= for user <- @users do %>
+              <option value={user.id}><%= user.name %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Display Assigned Users -->
+        <div>
+          <h4 class="text-lg font-semibold mb-2">Assigned Users:</h4>
+          <ul>
+            <%= for user <- @selected_task.users do %>
+              <li><%= user.name %></li>
+            <% end %>
+          </ul>
+        </div>
+
         <div class="mt-4">
           <h4 class="text-lg font-semibold mb-2">Preview:</h4>
           <div class="prose max-w-full">

@@ -3,6 +3,7 @@ defmodule PmTaskElixir.Task do
   import Ecto.Changeset
   import Ecto.Query
 
+  alias PmTaskElixir.TaskUser
   alias PmTaskElixir.Repo
   alias PmTaskElixir.Activity
   alias PmTaskElixir.Task
@@ -15,6 +16,8 @@ defmodule PmTaskElixir.Task do
 
     belongs_to :status, PmTaskElixir.Status
 
+    many_to_many :users, PmTaskElixir.User, join_through: "task_users"
+
     timestamps(type: :utc_datetime)
   end
 
@@ -24,6 +27,7 @@ defmodule PmTaskElixir.Task do
     |> cast(attrs, [:title, :description, :status_id, :due_date, :sprint_points])
     |> validate_required([:title, :description, :status_id, :due_date, :sprint_points])
     |> foreign_key_constraint(:status_id)
+    |> cast_assoc(:users)
   end
 
   def change_task(%Task{}, attrs \\ %{}) do
@@ -34,16 +38,17 @@ defmodule PmTaskElixir.Task do
     Repo.all(from(t in Task, order_by: [desc: t.inserted_at])) |> Repo.preload(:status)
   end
 
-  def get_task!(id), do: Repo.get!(Task, id) |> Repo.preload(:status)
+  def get_task!(id), do: Repo.get!(Task, id)
 
   def create_task(attrs \\ %{}) do
     Repo.transaction(fn ->
       case %Task{}
-      |> Task.changeset(attrs)
-      |> Repo.insert() do
+           |> Task.changeset(attrs)
+           |> Repo.insert() do
         {:ok, task} ->
           log_activity(task, "created", "N/A", "N/A")
           task
+
         {:error, changeset} ->
           Repo.rollback(changeset)
       end
@@ -56,6 +61,7 @@ defmodule PmTaskElixir.Task do
         {:ok, updated_task} ->
           log_changes(task, updated_task)
           updated_task
+
         {:error, changeset} ->
           IO.puts(inspect(changeset))
           Repo.rollback(changeset)
@@ -65,6 +71,11 @@ defmodule PmTaskElixir.Task do
 
   def delete_task(%Task{} = task) do
     Repo.delete(task)
+  end
+
+  def assign_user(task, user) do
+    task_user = %TaskUser{task_id: task.id, user_id: user.id}
+    Repo.insert!(task_user)
   end
 
   defp log_activity(task, action_type, old_value, new_value) do
@@ -84,6 +95,7 @@ defmodule PmTaskElixir.Task do
     |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at])
     |> Enum.each(fn {key, old_value} ->
       new_value = Map.get(new_task, key)
+
       if old_value != new_value do
         log_activity(new_task, "updated_#{key}", "#{inspect(old_value)}", "#{inspect(new_value)}")
       end

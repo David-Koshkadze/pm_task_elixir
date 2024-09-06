@@ -97,19 +97,34 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
     end
   end
 
-  # assign users to the task
-  def handle_event("assign_user", %{"user_id" => user_id}, socket) do
-    %{selected_task: selected_task} = socket.assigns
-    user = Repo.get(User, user_id)
+  def handle_event("assign_user", %{"value" => user_id}, socket) do
+    IO.inspect(user_id, label: "User ID from Click")
+    {:noreply, socket}
+  end
 
-    case Task.assign_user(selected_task, user) do
-      {:ok, _} ->
-        updated_task = get_task_preload(selected_task.id)
-        {:noreply, assign(socket, selected_task: updated_task)}
+  #assign users to the task
+  # def handle_event("assign_user", %{"value" => user_id}, socket) do
+  #   IO.inspect(user_id, label: "User ID")
+  #   %{selected_task: selected_task} = socket.assigns
+  #   user = Repo.get!(User, user_id)
 
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to assign user")}
-    end
+  #   IO.inspect(user, label: "User")
+  #   IO.inspect(selected_task, label: "Selected Task")
+
+  #   case Task.assign_user(selected_task, user) do
+  #     {:ok, _} ->
+  #       updated_task = get_task_preload(selected_task.id)
+  #       {:noreply, assign(socket, selected_task: updated_task)}
+
+  #     {:error, _changeset} ->
+  #       {:noreply, put_flash(socket, :error, "Failed to assign user")}
+  #   end
+  # end
+
+  # cathch unhandled events
+  def handle_event(event, _params, socket) do
+    IO.puts("Unhandled event: #{event}")
+    {:noreply, socket}
   end
 
   # --- handle_info ---

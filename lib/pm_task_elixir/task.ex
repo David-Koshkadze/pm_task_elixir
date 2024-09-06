@@ -74,6 +74,7 @@ defmodule PmTaskElixir.Task do
   end
 
   def assign_user(task, user) do
+    IO.inspect(task)
     task_user = %TaskUser{task_id: task.id, user_id: user.id}
     Repo.insert!(task_user)
   end

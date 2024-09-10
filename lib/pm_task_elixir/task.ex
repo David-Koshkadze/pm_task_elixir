@@ -74,9 +74,23 @@ defmodule PmTaskElixir.Task do
   end
 
   def assign_user(task, user) do
-    IO.inspect(task)
-    task_user = %TaskUser{task_id: task.id, user_id: user.id}
-    Repo.insert!(task_user)
+    %TaskUser{}
+    |> TaskUser.changeset(%{task_id: task.id, user_id: user.id})
+    |> Repo.insert()
+    |> case do
+      {:ok, _task_user} ->
+        {:ok, get_task_with_users(task.id)}
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  def remove_assignee(task, user) do
+    TaskUser
+    |> where(task_id: ^task.id, user_id: ^user.id)
+    |> Repo.delete_all()
+
+    {:ok, get_task_with_users(task.id)}
   end
 
   defp log_activity(task, action_type, old_value, new_value) do
@@ -101,5 +115,11 @@ defmodule PmTaskElixir.Task do
         log_activity(new_task, "updated_#{key}", "#{inspect(old_value)}", "#{inspect(new_value)}")
       end
     end)
+  end
+
+  defp get_task_with_users(task_id) do
+    Task
+    |> Repo.get!(task_id)
+    |> Repo.preload([users: :user])
   end
 end

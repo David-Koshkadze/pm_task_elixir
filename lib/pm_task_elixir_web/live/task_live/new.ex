@@ -46,7 +46,6 @@ defmodule PmTaskElixirWeb.Live.TaskLive.New do
          |> redirect(to: ~p"/tasks")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        IO.puts(changeset)
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end

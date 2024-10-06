@@ -79,7 +79,9 @@ defmodule PmTaskElixir.Task do
     |> Repo.insert()
     |> case do
       {:ok, _task_user} ->
+        log_activity(task, "user_assigned", "N/A", "N/A", user.id)
         {:ok, get_task_with_users(task.id)}
+
       {:error, changeset} ->
         {:error, changeset}
     end
@@ -93,11 +95,12 @@ defmodule PmTaskElixir.Task do
     {:ok, get_task_with_users(task.id)}
   end
 
-  defp log_activity(task, action_type, old_value, new_value) do
+  defp log_activity(task, action_type, old_value, new_value, user_id \\ nil) do
     %Activity{}
     |> Activity.changeset(%{
-      task_id: task.id,
       action_type: action_type,
+      task_id: task.id,
+      user_id: user_id,
       old_value: old_value,
       new_value: new_value
     })

@@ -18,4 +18,11 @@ defmodule PmTaskElixir.User do
     |> validate_required([:name, :email])
     |> unique_constraint(:email)
   end
+
+  # def create_new_user(attrs \\ %{}) do
+  #   case Repo.insert attrs do
+  #     {:ok, user} -> {:ok, user}
+  #     {:error, changeset} -> {:error, changeset}
+  #   end
+  # end
 end

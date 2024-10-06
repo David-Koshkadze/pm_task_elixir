@@ -1,4 +1,5 @@
 defmodule PmTaskElixirWeb.Live.TaskLive.Index do
+  alias PmTaskElixir.Activity
   use PmTaskElixirWeb, :live_view
   alias PmTaskElixir.Task
   alias PmTaskElixir.Repo
@@ -57,7 +58,9 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
     case Task.update_task(selected_task, attrs) do
       {:ok, updated_task} ->
-        {:noreply, assign(socket, selected_task: updated_task)}
+        activities = Activity.get_activities_by_task_id(selected_task.id)
+
+        {:noreply, assign(socket, selected_task: updated_task, activities: activities)}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to update task")}
@@ -67,11 +70,21 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   def handle_event("show_modal", %{"id" => id}, socket) do
     task = get_task_preload(id)
     IO.inspect(task.status, label: "Loaded Status")
+
+    # fetching activites
+    activities = Activity.get_activities_by_task_id(id)
+
     users = Repo.all(User)
     Process.send_after(self(), :show_modal, 50)
 
     {:noreply,
-     assign(socket, selected_task: task, show_modal: false, editing_title: false, users: users)}
+     assign(socket,
+       selected_task: task,
+       show_modal: false,
+       editing_title: false,
+       users: users,
+       activities: activities
+     )}
   end
 
   def handle_event("hide_modal", _, socket) do
@@ -112,7 +125,9 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
         case Task.assign_user(selected_task, user) do
           {:ok, _} ->
             updated_task = get_task_preload(selected_task.id)
-            {:noreply, assign(socket, selected_task: updated_task)}
+            activities = Activity.get_activities_by_task_id(selected_task.id)
+
+            {:noreply, assign(socket, selected_task: updated_task, activities: activities)}
 
           {:error, changeset} ->
             {:noreply, put_flash(socket, :error, error_to_string(changeset))}

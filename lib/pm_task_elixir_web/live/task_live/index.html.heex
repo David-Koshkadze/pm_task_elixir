@@ -129,7 +129,7 @@
               >
                 <option value="">Unassigned</option>
                 <%= for user <- @users do %>
-                  <option value={user.id}><%= user.name %></option>
+                  <option value={user.id}><%= user.username %></option>
                 <% end %>
               </select>
             </form>
@@ -140,7 +140,7 @@
             <div class="flex flex-wrap gap-2">
               <%= for user <- @selected_task.users do %>
                 <div>
-                  <span><%= user.name %></span>
+                  <span><%= user.username %></span>
                   <button
                     phx-click="remove_assignee"
                     phx-value-user_id={user.id}
@@ -168,7 +168,7 @@
           </div>
         </div>
         <%!-- Activity --%>
-        <div class="bg-teal-100 flex-none w-96 p-4">
+        <div class="bg-teal-100 flex-none w-[570px] p-4">
           <h1>Activity</h1>
           <div>
             <%= for activity <- @activities do %>

@@ -4,7 +4,7 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   alias PmTaskElixir.Task
   alias PmTaskElixir.Repo
   alias PmTaskElixir.Status
-  alias PmTaskElixir.User
+  alias PmTaskElixir.Accounts.User
 
   def mount(_params, _session, socket) do
     {:ok,

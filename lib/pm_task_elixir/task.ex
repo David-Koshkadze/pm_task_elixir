@@ -16,7 +16,7 @@ defmodule PmTaskElixir.Task do
 
     belongs_to :status, PmTaskElixir.Status
 
-    many_to_many :users, PmTaskElixir.User, join_through: "task_users"
+    many_to_many :users, PmTaskElixir.Accounts.User, join_through: "task_users"
 
     timestamps(type: :utc_datetime)
   end
@@ -123,6 +123,6 @@ defmodule PmTaskElixir.Task do
   defp get_task_with_users(task_id) do
     Task
     |> Repo.get!(task_id)
-    |> Repo.preload([users: :user])
+    |> Repo.preload(:users)
   end
 end

@@ -21,6 +21,10 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   def handle_event("filter_tasks", %{"user_id" => user_id}, socket) do
     user_id = if user_id == "", do: nil, else: String.to_integer(user_id)
 
+    IO.puts("---------------------------------------")
+    IO.inspect(user_id, label: "User ID: ")
+    IO.inspect(socket.assigns.tasks, label: "Tasks: ")
+
     filtered_tasks = filter_tasks(socket.assigns.tasks, user_id)
 
     {:noreply,
@@ -184,7 +188,11 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   end
 
   defp filter_tasks(tasks, nil), do: tasks
-  defp filter_tasks(tasks, user_id), do: Enum.filter(tasks, fn t -> t.user_id == user_id end)
+  defp filter_tasks(tasks, user_id) do
+    Enum.filter(tasks, fn task ->
+      Enum.any?(task.users, fn user -> user.id == user_id end)
+    end)
+  end
 
   defp get_task_preload(id) do
     Task.get_task!(id) |> Repo.preload([:status, :users])

@@ -30,6 +30,12 @@ defmodule PmTaskElixir.Task do
     |> cast_assoc(:users)
   end
 
+  def list_tasks_with_users do
+    Task
+    |> Repo.all()
+    |> Repo.preload(:users)
+  end
+
   def change_task(%Task{}, attrs \\ %{}) do
     Task.changeset(%Task{}, attrs)
   end

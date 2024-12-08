@@ -1,5 +1,20 @@
 <h1 class="text-3xl font-bold mb-6">Tasks</h1>
 
+<%!-- Filter by user --%>
+<div class="bg-blue-100 w-full h-auto mb-4">
+  Filter by user 
+  <form phx-change="filter_tasks">
+    <select name="user_id">
+      <option value="">All Users</option>
+      <%= for user <- @users do %>
+        <option value={user.id} selected={@selected_user_id == user.id}>
+          <%= user.username %>
+        </option>
+      <% end %>
+    </select>
+  </form>
+</div>
+
 <div id="tasks" class="space-y-4">
   <%= for task <- @tasks do %>
     <div
@@ -11,7 +26,6 @@
       <div class="flex justify-between items-center cursor-pointer">
         <div>
           <h2 class="text-lg font-semibold"><%= task.title %></h2>
-          <!-- <p class="text-sm text-gray-500">Status: <%= task.status.name %></p> -->
           <p class="text-sm text-gray-500">Due: <%= task.due_date %></p>
           <p class="text-sm text-gray-500">Sprint Points: <%= task.sprint_points %></p>
           <p class="text-sm text-gray-500">Created At: <%= task.inserted_at %></p>
@@ -168,7 +182,7 @@
           </div>
         </div>
         <%!-- Activity --%>
-        <div class="bg-teal-100 flex-none w-[570px] p-4">
+        <div class="bg-teal-100 flex-none w-[570px] p-4 h-full">
           <h1>Activity</h1>
           <div>
             <%= for activity <- @activities do %>
@@ -182,7 +196,6 @@
           </div>
         </div>
         <%!-- end Activity --%>
-
       </div>
     </div>
   </div>

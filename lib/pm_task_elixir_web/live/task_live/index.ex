@@ -9,12 +9,24 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   def mount(_params, _session, socket) do
     {:ok,
      assign(socket,
-       tasks: Task.list_tasks(),
+       tasks: Task.list_tasks_with_users(),
        selected_task: nil,
+       selected_user_id: nil,
        users: Repo.all(User),
        statuses: Repo.all(Status),
        editing_title: false
      )}
+  end
+
+  def handle_event("filter_tasks", %{"user_id" => user_id}, socket) do
+    user_id = if user_id == "", do: nil, else: String.to_integer(user_id)
+
+    filtered_tasks = filter_tasks(socket.assigns.tasks, user_id)
+
+    {:noreply,
+     socket
+     |> assign(:tasks, filtered_tasks)
+     |> assign(:selected_user_id, user_id)}
   end
 
   # --- handle_event ---
@@ -152,9 +164,6 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
           {:error, reason} ->
             {:noreply, put_flash(socket, :error, "Failed to remove assignee: #{reason}")}
         end
-
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Invalid used ID")}
     end
   end
 
@@ -173,6 +182,9 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   defp list_tasks do
     Task.list_tasks()
   end
+
+  defp filter_tasks(tasks, nil), do: tasks
+  defp filter_tasks(tasks, user_id), do: Enum.filter(tasks, fn t -> t.user_id == user_id end)
 
   defp get_task_preload(id) do
     Task.get_task!(id) |> Repo.preload([:status, :users])

@@ -28,7 +28,6 @@ jobs:
         ports: ['5432:5432']
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pm_task_elixir_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -113,4 +112,6 @@ jobs:
 
     # Step: Execute the tests.
     - name: Run tests
-      run: mix test
+      run: |
+        mix ecto.reset
+        mix test

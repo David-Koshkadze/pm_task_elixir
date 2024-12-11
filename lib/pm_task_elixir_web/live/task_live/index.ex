@@ -1,17 +1,36 @@
 defmodule PmTaskElixirWeb.Live.TaskLive.Index do
+  alias PmTaskElixir.Activity
   use PmTaskElixirWeb, :live_view
   alias PmTaskElixir.Task
   alias PmTaskElixir.Repo
   alias PmTaskElixir.Status
+  alias PmTaskElixir.Accounts.User
 
   def mount(_params, _session, socket) do
     {:ok,
      assign(socket,
-       tasks: Task.list_tasks(),
+       tasks: Task.list_tasks_with_users(),
        selected_task: nil,
+       selected_user_id: nil,
+       users: Repo.all(User),
        statuses: Repo.all(Status),
        editing_title: false
      )}
+  end
+
+  def handle_event("filter_tasks", %{"user_id" => user_id}, socket) do
+    user_id = if user_id == "", do: nil, else: String.to_integer(user_id)
+
+    IO.puts("---------------------------------------")
+    IO.inspect(user_id, label: "User ID: ")
+    IO.inspect(socket.assigns.tasks, label: "Tasks: ")
+
+    filtered_tasks = filter_tasks(socket.assigns.tasks, user_id)
+
+    {:noreply,
+     socket
+     |> assign(:tasks, filtered_tasks)
+     |> assign(:selected_user_id, user_id)}
   end
 
   # --- handle_event ---
@@ -55,7 +74,9 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
     case Task.update_task(selected_task, attrs) do
       {:ok, updated_task} ->
-        {:noreply, assign(socket, selected_task: updated_task)}
+        activities = Activity.get_activities_by_task_id(selected_task.id)
+
+        {:noreply, assign(socket, selected_task: updated_task, activities: activities)}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to update task")}
@@ -63,10 +84,23 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   end
 
   def handle_event("show_modal", %{"id" => id}, socket) do
-    task = Task.get_task!(id)
+    task = get_task_preload(id)
     IO.inspect(task.status, label: "Loaded Status")
+
+    # fetching activites
+    activities = Activity.get_activities_by_task_id(id)
+
+    users = Repo.all(User)
     Process.send_after(self(), :show_modal, 50)
-    {:noreply, assign(socket, selected_task: task, show_modal: false, editing_title: false)}
+
+    {:noreply,
+     assign(socket,
+       selected_task: task,
+       show_modal: false,
+       editing_title: false,
+       users: users,
+       activities: activities
+     )}
   end
 
   def handle_event("hide_modal", _, socket) do
@@ -94,6 +128,56 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
     end
   end
 
+  # --- assign users to the task ---
+  def handle_event("assign_user", %{"user_id" => user_id}, socket) do
+    IO.inspect(user_id, label: "User ID: ")
+
+    %{selected_task: selected_task} = socket.assigns
+
+    case Integer.parse(user_id) do
+      {parsed_user_id, _} ->
+        user = Repo.get(User, parsed_user_id)
+
+        case Task.assign_user(selected_task, user) do
+          {:ok, _} ->
+            updated_task = get_task_preload(selected_task.id)
+            activities = Activity.get_activities_by_task_id(selected_task.id)
+
+            {:noreply, assign(socket, selected_task: updated_task, activities: activities)}
+
+          {:error, changeset} ->
+            {:noreply, put_flash(socket, :error, error_to_string(changeset))}
+        end
+
+      :error ->
+        {:noreply, put_flash(socket, :error, "Failed to assign user")}
+    end
+  end
+
+  def handle_event("remove_assignee", %{"user_id" => user_id}, socket) do
+    %{selected_task: selected_task} = socket.assigns
+
+    case Integer.parse(user_id) do
+      {parsed_user_id, _} ->
+        user = Repo.get!(User, parsed_user_id)
+
+        case Task.remove_assignee(selected_task, user) do
+          {:ok, updated_task} ->
+            {:noreply, assign(socket, selected_task: updated_task)}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Failed to remove assignee: #{reason}")}
+        end
+    end
+  end
+
+  # cathch unhandled events
+  def handle_event(event, _params, socket) do
+    IO.puts("Unhandled event: #{event}")
+    # IO.inspect(socket)
+    {:noreply, socket}
+  end
+
   # --- handle_info ---
   def handle_info(:show_modal, socket) do
     {:noreply, assign(socket, show_modal: true)}
@@ -101,5 +185,28 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
 
   defp list_tasks do
     Task.list_tasks()
+  end
+
+  defp filter_tasks(tasks, nil), do: tasks
+  defp filter_tasks(tasks, user_id) do
+    Enum.filter(tasks, fn task ->
+      Enum.any?(task.users, fn user -> user.id == user_id end)
+    end)
+  end
+
+  defp get_task_preload(id) do
+    Task.get_task!(id) |> Repo.preload([:status, :users])
+  end
+
+  defp error_to_string(changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+      Enum.reduce(opts, msg, fn {key, value}, acc ->
+        String.replace(acc, "%{#{key}}", to_string(value))
+      end)
+    end)
+    |> Enum.reduce("", fn {k, v}, acc ->
+      joined_errors = Enum.join(v, "; ")
+      "#{acc}#{k}: #{joined_errors}\n"
+    end)
   end
 end

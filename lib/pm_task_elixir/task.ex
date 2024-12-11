@@ -39,11 +39,12 @@ defmodule PmTaskElixir.Task do
   def create_task(attrs \\ %{}) do
     Repo.transaction(fn ->
       case %Task{}
-      |> Task.changeset(attrs)
-      |> Repo.insert() do
+           |> Task.changeset(attrs)
+           |> Repo.insert() do
         {:ok, task} ->
           log_activity(task, "created", "N/A", "N/A")
           task
+
         {:error, changeset} ->
           Repo.rollback(changeset)
       end
@@ -56,6 +57,7 @@ defmodule PmTaskElixir.Task do
         {:ok, updated_task} ->
           log_changes(task, updated_task)
           updated_task
+
         {:error, changeset} ->
           IO.puts(inspect(changeset))
           Repo.rollback(changeset)
@@ -84,6 +86,7 @@ defmodule PmTaskElixir.Task do
     |> Map.drop([:__meta__, :__struct__, :inserted_at, :updated_at])
     |> Enum.each(fn {key, old_value} ->
       new_value = Map.get(new_task, key)
+
       if old_value != new_value do
         log_activity(new_task, "updated_#{key}", "#{inspect(old_value)}", "#{inspect(new_value)}")
       end

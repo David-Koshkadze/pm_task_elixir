@@ -17,7 +17,7 @@ defmodule PmTaskElixirWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import PmTaskElixirWeb.Gettext
+  use Gettext, backend: PmTaskElixir.Gettext
 
   @doc """
   Renders a modal.

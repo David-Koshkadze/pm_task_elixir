@@ -2,13 +2,13 @@
 
 <%!-- Filter by user --%>
 <div class="bg-blue-100 w-full h-auto mb-4">
-  Filter by user 
+  Filter by user
   <form phx-change="filter_tasks">
     <select name="user_id">
       <option value="">All Users</option>
       <%= for user <- @users do %>
         <option value={user.id} selected={@selected_user_id == user.id}>
-          <%= user.username %>
+          {user.username}
         </option>
       <% end %>
     </select>
@@ -93,16 +93,16 @@
             </form>
           <% else %>
             <h3 class="text-2xl font-bold text-gray-900 mb-4" phx-click="edit_title">
-              <%= @selected_task.title %>
+              {@selected_task.title}
             </h3>
           <% end %>
 
           <form phx-change="update_task" phx-submit="update_task">
             <div class="flex flex-col gap-4 mb-4">
               <!-- Status here... -->
-              <p class="text-sm text-gray-500">Due: <%= @selected_task.due_date %></p>
+              <p class="text-sm text-gray-500">Due: {@selected_task.due_date}</p>
               <p class="text-sm text-gray-500">
-                Sprint Points: <%= @selected_task.sprint_points %>
+                Sprint Points: {@selected_task.sprint_points}
               </p>
             </div>
             <!-- Status -->
@@ -116,7 +116,7 @@
               >
                 <%= for status <- @statuses do %>
                   <option value={status.id} selected={@selected_task.status_id == status.id}>
-                    <%= status.name %>
+                    {status.name}
                   </option>
                 <% end %>
               </select>
@@ -161,7 +161,7 @@
               >
                 <option value="">Unassigned</option>
                 <%= for user <- @users do %>
-                  <option value={user.id}><%= user.username %></option>
+                  <option value={user.id}>{user.username}</option>
                 <% end %>
               </select>
             </form>
@@ -172,7 +172,7 @@
             <div class="flex flex-wrap gap-2">
               <%= for user <- @selected_task.users do %>
                 <div>
-                  <span><%= user.username %></span>
+                  <span>{user.username}</span>
                   <button
                     phx-click="remove_assignee"
                     phx-value-user_id={user.id}
@@ -195,7 +195,7 @@
           <div class="mt-4">
             <h4 class="text-lg font-semibold mb-2">Preview:</h4>
             <div class="prose max-w-full">
-              <%= raw(Earmark.as_html!(@selected_task.description)) %>
+              {raw(Earmark.as_html!(@selected_task.description))}
             </div>
           </div>
         </div>
@@ -205,10 +205,10 @@
           <div>
             <%= for activity <- @activities do %>
               <div class="mb-2 border-black border-b-2">
-                <strong>Action:</strong> <%= activity.action_type %><br>
-                <strong>Old Value:</strong> <%= activity.old_value %><br>
-                <strong>New Value:</strong> <%= activity.new_value %><br>
-                <strong>Performed at:</strong> <%= activity.inserted_at %>
+                <strong>Action:</strong> {activity.action_type}<br />
+                <strong>Old Value:</strong> {activity.old_value}<br />
+                <strong>New Value:</strong> {activity.new_value}<br />
+                <strong>Performed at:</strong> {activity.inserted_at}
               </div>
             <% end %>
           </div>

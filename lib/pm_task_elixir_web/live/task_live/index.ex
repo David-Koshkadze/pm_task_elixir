@@ -188,6 +188,7 @@ defmodule PmTaskElixirWeb.Live.TaskLive.Index do
   end
 
   defp filter_tasks(tasks, nil), do: tasks
+
   defp filter_tasks(tasks, user_id) do
     Enum.filter(tasks, fn task ->
       Enum.any?(task.users, fn user -> user.id == user_id end)

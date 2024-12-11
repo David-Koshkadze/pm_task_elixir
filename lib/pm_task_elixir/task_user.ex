@@ -4,7 +4,7 @@ defmodule PmTaskElixir.TaskUser do
 
   schema "task_users" do
     belongs_to :task, PmTaskElixir.Task
-    belongs_to :user, PmTaskElixir.User
+    belongs_to :user, PmTaskElixir.Accounts.User
 
     timestamps(type: :utc_datetime)
   end

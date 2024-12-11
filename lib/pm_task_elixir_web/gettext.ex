@@ -20,5 +20,5 @@ defmodule PmTaskElixirWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :pm_task_elixir
+  use Gettext.Backend, otp_app: :pm_task_elixir
 end

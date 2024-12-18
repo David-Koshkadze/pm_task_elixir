@@ -113,5 +113,5 @@ jobs:
     # Step: Execute the tests.
     - name: Run tests
       run: |
-        mix ecto.reset
+        mix ecto.setup
         mix test

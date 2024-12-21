@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-PmTaskElixir.Repo.insert!(%PmTaskElixir.Status{
-  name: "Todo",
-  order: 1
-})
+# PmTaskElixir.Repo.insert!(%PmTaskElixir.Status{
+#   name: "Todo",
+#   order: 1
+# })

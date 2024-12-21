@@ -60,7 +60,8 @@ defmodule PmTaskElixir.AccountsTest do
     end
 
     test "validates email and password when given" do
-      {:error, changeset} = Accounts.register_user(%{username: "justuser", email: "not valid", password: "not valid"})
+      {:error, changeset} =
+        Accounts.register_user(%{username: "justuser", email: "not valid", password: "not valid"})
 
       assert %{
                email: ["must have the @ sign and no spaces"],
@@ -70,7 +71,10 @@ defmodule PmTaskElixir.AccountsTest do
 
     test "validates maximum values for email and password for security" do
       too_long = String.duplicate("db", 100)
-      {:error, changeset} = Accounts.register_user(%{username: "test_username", email: too_long, password: too_long})
+
+      {:error, changeset} =
+        Accounts.register_user(%{username: "test_username", email: too_long, password: too_long})
+
       assert "should be at most 160 character(s)" in errors_on(changeset).email
       assert "should be at most 72 character(s)" in errors_on(changeset).password
     end

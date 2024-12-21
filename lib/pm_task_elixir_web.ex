@@ -43,7 +43,8 @@ defmodule PmTaskElixirWeb do
         layouts: [html: PmTaskElixirWeb.Layouts]
 
       import Plug.Conn
-      import PmTaskElixirWeb.Gettext
+      # import PmTaskElixirWeb.Gettext
+      use Gettext, backend: PmTaskElixirWeb.Gettext
 
       unquote(verified_routes())
     end
